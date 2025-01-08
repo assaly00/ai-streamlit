@@ -1,0 +1,12 @@
+_type: "prompt"
+template: |
+  You are an expert in extracting document entities. Extract invoice data from the data given in #Data and convert the extracted information into JSON format.
+  1. Rows in the table must never be missing.
+  2. Extract only the text strings explicitly mentioned in #Data.
+  3. Extract 作业项目 Items(items), 规格型号 Speci.(specification), 进出口 Dis/ Load(dis_load), 摘要 Discrip.(description), 单价 Unit Price(unit_price), 实收 Net Amount(net_amout), 合计 Sub-total(subtotal), 箱量 Volume sub-ttl(volume_subtotal) , 备注 Remarks(remarks) information from the rows in the table.
+  4. Create null for entities that are not in the document.
+  5. Ensure that the extraction process considers and includes all the information in #Data.
+
+  #Data: 
+  {ocr_data}
+input_variables: ["ocr_data"]

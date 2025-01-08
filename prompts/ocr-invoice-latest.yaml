@@ -1,0 +1,184 @@
+_type: "prompt"
+template: |
+  <CACHE_PROMPT>
+  ### Role: JSON Data Transformer
+  Your role is to transform a Markdown representing extracted data from a terminal invoice into a standardized JSON format according to a provided schema in <json_schema>. The input data may have unexpected or inconsistent key names, while the output must adhere strictly to the specified schema.
+
+  ### Instructions ###
+  1. **Analyze the input data:** Carefully examine the keys and values of <input_markdown>. The key names might not match the expected schema, so you need to understand the meaning of each value based on its context within an invoice.
+  2. **Map values to the output schema:** Using your understanding of invoice data, map the values from <input_markdown> to the corresponding fields in the provided <json_schema>. If a required field is missing in the input, indicate this by inserting a `null` value. If a field is present in the input but not in the schema, discard it.
+  3. **Generate the output JSON:** Construct a valid JSON object that strictly adheres to the provided output schema. Ensure all keys and value types match the schema definition. If there is an error in the output JSON format, correct it and make sure it is valid.
+
+  <json_schema>
+  |
+    {{
+      "type": "object",
+      "properties": {{
+        "invoiceHeaderInformation": {{
+          "type": "object",
+          "properties": {{
+            "shippingCompany": {{ "type": "string" }},
+            "invoiceDate": {{ "type": "string" }},
+            "paymentDueDate": {{ "type": "string" }},
+            "terminalName": {{ "type": "string" }},
+            "terminalLocation": {{ "type": "string" }},
+            "vesselName": {{ "type": "string" }},
+            "voyageNumber": {{ "type": "string" }},
+            "direction": {{ "type": "string", "enum": ["E", "W", "S", "N"] }},
+            "departureDateTime": {{ "type": "string" }},
+            "berthDateTime": {{ "type": "string" }},
+            "stevedoringFrom": {{ "type": "string" }},
+            "stevedoringTo": {{ "type": "string" }}
+          }}
+        }},
+        "invoice": {{
+          "type": "array",
+          "items": {{
+            "type": "object",
+            "properties": {{
+              "invoiceNumber": {{ "type": "string" }},
+              "currency": {{ "type": "string" }},
+              "vatAmount": {{ "type": "number" }},
+              "lineItems": {{
+                "type": "array",
+                "items": {{
+                  "type": "object",
+                  "properties": {{
+                    "pageNo": {{ "type": "integer" }},
+                    "itemName": {{ "type": "string" }},
+                    "itemNo": {{ "type": "integer" }},
+                    "details": {{
+                      "type": "array",
+                      "items": {{
+                        "type": "object",
+                        "properties": {{
+                          "chargeType": {{ "type": "string" }},
+                          "description": {{ "type": "string" }},
+                          "specification": {{ "type": "string" }},
+                          "discharge": {{ "type": "string" }},
+                          "unitPrice": {{ "type": "number" }},
+                          "discount": {{ "type": "number" }},
+                          "amount": {{ "type": "number" }},
+                          "quantity": {{ "type": "integer" }},
+                          "taxRate": {{ "type": "number" }},
+                          "unit": {{ "type": "string" }},
+                          "remark": {{ "type": "string" }},
+                          "containerType": {{ "type": "string", "enum": ["20F", "40F", "45F"] }},
+                          "containerList": {{ "type": "array", "items": {{ "type": "string" }} }},
+                          "cargoType": {{ "type": "string", "enum": ["DG", "RF", "OG"] }}
+                        }}
+                      }}
+                    }},
+                    "subTotalAmount": {{ "type": "number" }},
+                    "subVolume": {{ "type": "string" }}
+                  }}
+                }}
+              }},
+              "totalAmount": {{ "type": "number" }}
+            }}
+          }}
+        }},
+        "additionalChargeInfo": {{
+          "type": "object",
+          "properties": {{
+            "berthingFee": {{ "type": "number" }},
+            "portOperationsFee": {{ "type": "number" }},
+            "taxDetails": {{
+              "type": "object",
+              "properties": {{
+                "type": {{ "type": "string" }},
+                "rate": {{ "type": "number" }},
+                "amount": {{ "type": "number" }}
+              }}
+            }}
+          }}
+        }},
+        "paymentDetails": {{
+          "type": "object",
+          "properties": {{
+            "paymentMethod": {{ "type": "string" }},
+            "currency": {{ "type": "string" }},
+            "exchangeRate": {{ "type": "number" }},
+            "exchangeTotal": {{ "type": "number" }},
+            "overallTotal": {{ "type": "number" }},
+            "overallDiscount": {{ "type": "number" }},
+            "discount": {{
+              "type": "object",
+              "properties": {{
+                "detail": {{ "type": "string" }},
+                "applied": {{ "type": "boolean" }}
+              }}
+            }}
+          }}
+        }},
+        "supplementaryInfo": {{
+          "type": "object",
+          "properties": {{
+            "carrier": {{ "type": "string" }},
+            "service": {{ "type": "string" }},
+            "code": {{ "type": "string" }},
+            "invoiceCode": {{ "type": "string" }},
+            "machineNumber": {{ "type": "string" }},
+            "verificationCode": {{ "type": "string" }},
+            "nrt": {{ "type": "string" }},
+            "buyer": {{
+              "type": "object",
+              "properties": {{
+                "name": {{ "type": "string" }},
+                "number": {{ "type": "string" }},
+                "address": {{ "type": "string" }},
+                "telNo": {{ "type": "string" }},
+                "bankAccount": {{ "type": "string" }}
+              }}
+            }},
+            "seller": {{
+              "type": "object",
+              "properties": {{
+                "name": {{ "type": "string" }},
+                "number": {{ "type": "string" }},
+                "address": {{ "type": "string" }},
+                "telNo": {{ "type": "string" }},
+                "bankAccount": {{ "type": "string" }}
+              }}
+            }}
+          }}
+        }},
+        "billingInfo": {{
+          "type": "object",
+          "properties": {{
+            "payee": {{ "type": "string" }},
+            "review": {{ "type": "string" }},
+            "issuer": {{ "type": "string" }},
+            "agency": {{ "type": "string" }},
+            "seller": {{ "type": "string" }},
+            "footnote": {{ "type": "string" }},
+            "shiftCode": {{ "type": "string" }},
+            "beneficiary": {{ "type": "string" }},
+            "email": {{ "type": "string" }},
+            "tel": {{ "type": "string" }},
+            "fax": {{ "type": "string" }},
+            "bankDetails": {{
+              "type": "array",
+              "items": {{
+                "type": "object",
+                "properties": {{
+                  "currency": {{ "type": "string" }},
+                  "bankName": {{ "type": "string" }},
+                  "accountNo": {{ "type": "string" }}
+                }}
+              }}
+            }}
+          }}
+        }}
+      }}
+    }}
+  </json_schema>
+
+  <input_markdown>
+  {ocr_data}
+  </input_markdown>
+
+  {format_instructions}
+  </CACHE_PROMPT>
+
+input_variables: ["ocr_data", "format_instructions"]
